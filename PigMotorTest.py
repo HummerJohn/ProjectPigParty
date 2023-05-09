@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 import RPi.GPIO as GPIO
 import time
-import datetime
-import subprocess
 
 PulP = 8
 print('Insert Desired RPM: ')

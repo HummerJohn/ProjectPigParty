@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    function sendData() {
+			var sliderValue = document.getElementById("myRange").value;
+			fetch("/slider", {
+				method: "POST",
+				body: sliderValue
+			})
+		}
+	</script>
+  <style>
+    .slidecontainer {
+      margin: 0 auto;
+      width: 80%;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 25px;
+      border-radius: 5px;  
+      background: #d3d3d3;
+      outline: none;
+      opacity: 0.7;
+      -webkit-transition: .2s;
+      transition: opacity .2s;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%; 
+      background: #2f00ff;
+      cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #2f00ff;
+      cursor: pointer;
+    }
+
+    .sliderticks {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 15px;
+    }
+
+    .sliderticks p {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      width: 1px;
+      background: #D3D3D3;
+      height: 10px;
+      line-height: 40px;
+      margin: 0 0 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+    <h1>The Pig Party Slider</h1>
+      <div class="slidecontainer">
+      <p>Rotational Speed of Piggy [RPM]:</p>
+      <input type="range" min="0" max="10" value="3" step="0.1" class="slider" id="myRange" list="tickmarks" >
+          <div class="sliderticks">
+              <p>0</p>
+              <p>1</p>
+              <p>2</p>
+              <p>3</p>
+              <p>4</p>
+              <p>5</p>
+              <p>6</p>
+              <p>7</p>
+              <p>8</p>
+              <p>9</p>
+              <p>10</p>
+          </div>
+          <p>Rotations Per Minute: <span id="demo"></span></p>
+      </div>
+
+      <script>
+          var slider = document.getElementById("myRange");
+          var output = document.getElementById("demo");
+          output.innerHTML = slider.value;
+          
+          slider.oninput = function() {
+              output.innerHTML = this.value;
+          }
+      </script>
+      <button onclick="sendData()">Send Slider Value</button>
+</body>
+</html>
