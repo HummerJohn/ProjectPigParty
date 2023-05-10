@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,11 +11,74 @@
 				body: sliderValue
 			})
 		}
+    function sendStop() {
+			var sliderValue = 0;
+			fetch("/slider", {
+				method: "POST",
+				body: sliderValue
+			})
+		}
+    function updateCurrentRPM() {
+      fetch("/current_rpm")
+        .then(response => response.text())
+        .then(data => {
+          const currentRPM = document.getElementById("current-rpm");
+          currentRPM.innerText = data;
+        })
+        .catch(error => {
+          console.log("Error updating current RPM:", error);
+        });
+    }
+
+    // Call the function initially to update the current RPM
+    updateCurrentRPM();
+
+    // Call the function every 2 seconds to keep updating the current RPM
+    setInterval(updateCurrentRPM, 2000);
 	</script>
   <style>
+    .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 0 auto;
+      width: 100%;
+    }
+
     .slidecontainer {
       margin: 0 auto;
       width: 80%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .left {
+      text-align: left;
+      width: 40%;
+    }
+
+    .right {
+      text-align: right;
+      width: 40%;
+    }
+
+    button {
+      font-size: 14px;
+      padding: 24px 10px;
+      width: 100%;
+      border-radius: 10px;
+      flex-grow: 1;
+      height: 80px;
+    }
+
+    .stop-button {
+      background-color: #ff0000;
+      color: white;
     }
 
     .slider {
@@ -69,25 +133,44 @@
 <body>
 
     <h1>The Pig Party Slider</h1>
+    <div class="container">
       <div class="slidecontainer">
-      <p>Rotational Speed of Piggy [RPM]:</p>
-      <input type="range" min="0" max="10" value="3" step="0.1" class="slider" id="myRange" list="tickmarks" >
-          <div class="sliderticks">
-              <p>0</p>
-              <p>1</p>
-              <p>2</p>
-              <p>3</p>
-              <p>4</p>
-              <p>5</p>
-              <p>6</p>
-              <p>7</p>
-              <p>8</p>
-              <p>9</p>
-              <p>10</p>
+        <p>Rotational Speed of Piggy [RPM]:</p>
+        <input type="range" min="0" max="10" value="{0}" step="0.1" class="slider" id="myRange" list="tickmarks" >
+        <div class="sliderticks">
+          <p>0</p>
+          <p>1</p>
+          <p>2</p>
+          <p>3</p>
+          <p>4</p>
+          <p>5</p>
+          <p>6</p>
+          <p>7</p>
+          <p>8</p>
+          <p>9</p>
+          <p>10</p>
+        </div>
+      
+        <div class="container">
+          <div class="left">
+            <p>Desired Rotations Per Minute: <span id="demo"></span></p>
           </div>
-          <p>Rotations Per Minute: <span id="demo"></span></p>
+          <div class="right">
+            <!-- <p>Current Rotations Per Minute: "{0}"</p>  -->
+            <p>Current Rotations Per Minute: <span id="current-rpm">{0}</span></p>
+          </div>
+        </div>
+        
+        <div class="container">
+          <div class="left">
+            <button onclick="sendData()">Send Desired RPM</button> 
+          </div>
+          <div class="right">
+            <button class="stop-button" onclick="sendStop()">STOP</button>
+          </div>
+        </div>
       </div>
-
+    </div>
       <script>
           var slider = document.getElementById("myRange");
           var output = document.getElementById("demo");
@@ -97,6 +180,6 @@
               output.innerHTML = this.value;
           }
       </script>
-      <button onclick="sendData()">Send Slider Value</button>
+      
 </body>
 </html>

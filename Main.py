@@ -1,3 +1,6 @@
+# List running python 
+# ps -ef | grep python
+
 from server import run_server
 import sqlite3
 import threading
@@ -74,3 +77,5 @@ except KeyboardInterrupt:
 # cursor.execute('DROP TABLE RPM')
 # sqliteConnection.commit()
 # sqliteConnection.close()
+
+

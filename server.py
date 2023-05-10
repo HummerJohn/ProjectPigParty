@@ -2,20 +2,20 @@ import http.server
 import socketserver
 import sqlite3
 
-
-# import threading
-
-# import RPi.GPIO as GPIO
-# import time
-
-# PulP = 8
-# GPIO.setmode(GPIO.BOARD)
-# GPIO.setwarnings(False)    
-# GPIO.setup(PulP,GPIO.OUT)
-
-
-# Desired_RPM = 30.0 
-# Desired_RPM_OLD = 0.0
+def ReadFromDatabase():
+    # Connect to the database
+    sqliteConnection = sqlite3.connect('my_database.db')
+    # Create a cursor object
+    cursor = sqliteConnection.cursor()
+    # Select the value from the slider_value column
+    cursor.execute('SELECT Current FROM RPM')
+    # Fetch the value
+    Desired_RPM_OLD = cursor.fetchone()[0]
+    # Close the cursor and the connection
+    cursor.close()
+    sqliteConnection.close()
+    # Return the value
+    return Desired_RPM_OLD
 
 def WriteToDatabase(Desired_RPM):
     # Connect to the database
@@ -29,21 +29,22 @@ def WriteToDatabase(Desired_RPM):
     # Commit the transaction
     
     if Desired_RPM != Desired_RPM_OLD:
-        print("Received Desired RPM: ", Desired_RPM)
         if Desired_RPM > 10.0:
             cursor.execute("UPDATE RPM SET Desired = ? WHERE ID = ?", (10.0,1))
         elif Desired_RPM < 0:
             cursor.execute("UPDATE RPM SET Desired = ? WHERE ID = ?", (0,1))
         else:
             cursor.execute("UPDATE RPM SET Desired = ? WHERE ID = ?", (Desired_RPM,1))
-            # cursor.execute("INSERT INTO RPM (Desired) VALUES (?)", (Desired_RPM,))
     
     sqliteConnection.commit()        
     cursor.close()
     sqliteConnection.close()
 
-
 class RequestHandler(http.server.BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        # Override the log_message method to do nothing
+        pass
+    
     def do_POST(self):
         # global Desired_RPM
         content_length = int(self.headers['Content-Length'])
@@ -57,13 +58,31 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(bytes("Slider value received", "utf-8"))
 		
     def do_GET(self):
-        if self.path == '/':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
+        try:
+            if self.path == '/':
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                Desired_RPM_OLD = ReadFromDatabase()
+                with open('Slider.html', 'r') as file:
+                    content = file.read()
+                    content = content.replace('"{0}"', f'"{Desired_RPM_OLD}"')
+                    self.wfile.write(bytes(content, 'utf-8'))
+            elif self.path == '/current_rpm':
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                Desired_RPM_OLD = ReadFromDatabase()
+                self.wfile.write(bytes(str(Desired_RPM_OLD), 'utf-8'))
+            else:
+                self.send_error(404)
+                self.end_headers()
+        except Exception as e:
+            print("Error occurred while handling request:", e)
+            import traceback
+            traceback.print_exc()
+            self.send_error(500, "Internal server error")
             self.end_headers()
-            with open('Slider.html', 'rb') as file:
-                self.wfile.write(file.read())
-            return
 
 def run_server():
     socketserver.TCPServer.allow_reuse_address = True
@@ -71,25 +90,3 @@ def run_server():
     httpd = http.server.HTTPServer(server_address, RequestHandler)
     print("Starting server on port ", server_address[1])
     httpd.serve_forever()
-
-
-# server_thread = threading.Thread(target=run_server)
-# server_thread.start()
-
-# while 1:
-#     if Desired_RPM != Desired_RPM_OLD:
-#         print("Received Desired RPM: ", Desired_RPM/10)
-#         Desired_RPM_OLD = Desired_RPM
-#         PulsePerRotation = 1000 * 2
-#         SecondsPerRotation = 60/Desired_RPM_OLD 
-#         SecondsPerPulse = SecondsPerRotation/PulsePerRotation # Delay between each Pulse
-#         print("Seconds per pulse: ", SecondsPerPulse)
-#     GPIO.output(PulP,GPIO.HIGH)
-#     time.sleep(SecondsPerPulse)
-#     GPIO.output(PulP,GPIO.LOW)
-#     time.sleep(SecondsPerPulse)
-
-# division by zero
-
-
-
