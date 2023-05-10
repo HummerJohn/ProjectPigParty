@@ -74,6 +74,13 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
                 Desired_RPM_OLD = ReadFromDatabase()
                 self.wfile.write(bytes(str(Desired_RPM_OLD), 'utf-8'))
+            elif self.path.endswith('.png'):
+                # Serve image files
+                self.send_response(200)
+                self.send_header('Content-type', 'image/png')
+                self.end_headers()
+                with open(self.path[1:], 'rb') as file:
+                    self.wfile.write(file.read())            
             else:
                 self.send_error(404)
                 self.end_headers()
