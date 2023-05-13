@@ -6,6 +6,7 @@ import sqlite3
 import threading
 import RPi.GPIO as GPIO
 import time
+import os
 
 server_thread = threading.Thread(target=run_server)
 server_thread.start()
@@ -30,6 +31,7 @@ try:
         SecondsPerRotation = 60/(Current_RPM*10.0)
         SecondsPerPulse = SecondsPerRotation/PulsePerRotation
         init = 0
+        os.system('uhubctl -l 1-1 -p 2 -a 1')
         
     while 1:
         cursor.execute('SELECT Current FROM RPM')
@@ -57,6 +59,8 @@ try:
             time.sleep(1)
 except KeyboardInterrupt:
     sqliteConnection.close()
+    os.system('uhubctl -l 1-1 -p 2 -a 0')
+    GPIO.cleanup()
 # # subprocess.run([python],)
 
 # import sqlite3
