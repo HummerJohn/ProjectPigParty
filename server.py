@@ -40,13 +40,32 @@ def WriteToDatabase(Desired_RPM):
     cursor.close()
     sqliteConnection.close()
 
+def ChangeDirection():
+    # Connect to the database
+    sqliteConnection = sqlite3.connect('my_database.db')
+    # Create a cursor object
+    cursor = sqliteConnection.cursor()
+    # Select the value from the slider_value column
+    cursor.execute('SELECT Current FROM Direction')
+    # Fetch the value
+    Current_Dir = cursor.fetchone()[0]
+    
+    if Current_Dir == 1:
+        cursor.execute("UPDATE Direction SET Desired = ? WHERE ID = ?", (0,1))
+    else:
+        cursor.execute("UPDATE Direction SET Desired = ? WHERE ID = ?", (1,1))
+    # Close the cursor and the connection
+    sqliteConnection.commit()   
+    cursor.close()
+    sqliteConnection.close()
+    # Return the value
+    
 class RequestHandler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         # Override the log_message method to do nothing
         pass
     
     def do_POST(self):
-        # global Desired_RPM
         content_length = int(self.headers['Content-Length'])
         Desired_RPM = (float(self.rfile.read(content_length).decode('utf-8')))
 
@@ -74,6 +93,12 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
                 Desired_RPM_OLD = ReadFromDatabase()
                 self.wfile.write(bytes(str(Desired_RPM_OLD), 'utf-8'))
+            elif self.path == '/change_direction':
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                ChangeDirection()
+                self.wfile.write(bytes("Direction changed", 'utf-8'))   
             elif self.path.endswith('.png'):
                 # Serve image files
                 self.send_response(200)
@@ -91,9 +116,36 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
             self.send_error(500, "Internal server error")
             self.end_headers()
 
-def run_server():
-    socketserver.TCPServer.allow_reuse_address = True
-    server_address = ('', 8080)
-    httpd = http.server.HTTPServer(server_address, RequestHandler)
-    print("Starting server on port ", server_address[1])
-    httpd.serve_forever()
+
+# def run_server():
+#     socketserver.TCPServer.allow_reuse_address = True
+#     server_address = ('', 8080)
+#     httpd = http.server.HTTPServer(server_address, RequestHandler)
+#     print("Starting server on port ", server_address[1])
+#     httpd.serve_forever()
+#     return httpd
+
+import threading
+
+# ... (previously defined code)
+
+class ServerThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.server = None
+
+    def run(self):
+        socketserver.TCPServer.allow_reuse_address = True
+        server_address = ('', 8080)
+        self.server = http.server.HTTPServer(server_address, RequestHandler)
+        print("Starting server on port", server_address[1])
+        self.server.serve_forever()
+
+    def stop(self):
+        if self.server is not None:
+            print("Stopping server...")
+            self.server.shutdown()
+            self.server.server_close()
+            print("Server stopped.")
+
+# ... (previously defined code)

@@ -42,13 +42,14 @@
       .button {
         background-color: #e4c58f;
         font-size: 14px;
-        padding: 24px 10px;
+        padding: 10px 10px;
         width: 100%;
         border-radius: 15px;
         flex-grow: 1;
-        height: 80px;
+        height: 60px;
         transition: background-color 0.3s;
         box-shadow: 0 9px #999;
+        margin-top: 10px;
       }
 
       .button:hover {
@@ -66,14 +67,15 @@
       .stop-button {
         background-color: #ff0000;
         font-size: 14px;
-        padding: 24px 10px;
+        padding: 10px 10px;
         width: 100%;
         border-radius: 15px;
         flex-grow: 1;
-        height: 80px;
+        height: 60px;
         transition: background-color 0.3s;
         color: #e4c58f;
         box-shadow: 0 9px #999;
+        margin-top: 10px;
       }
 
       .stop-button:hover {
@@ -151,12 +153,21 @@
 
       @keyframes rotate {
         from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+/* 
+      @keyframes rotateCounter {
+        from {
           transform: rotate(360deg);
         }
         to {
           transform: rotate(0deg);
         }
-      }
+      } */
 
     </style>
   </head>
@@ -199,6 +210,12 @@
           </div>
         </div>
 
+        <div class="container">
+          <div class="left">
+            <button id="DirButton" class="button" onclick="sendDir()">Change Direction</button> 
+          </div>
+        </div>
+
         <div class="image-container">
           <img class="image" src="pig.png" alt="Rotating Image">
         </div>
@@ -220,6 +237,11 @@
           method: "POST",
           body: sliderValue
         })
+      }
+
+      function sendDir() {
+        var sliderValue = 0;
+        fetch("/change_direction")
       }
 
       function updateCurrentRPM() {

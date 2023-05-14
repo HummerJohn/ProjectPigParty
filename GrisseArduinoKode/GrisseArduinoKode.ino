@@ -1,16 +1,16 @@
 const int ppsPin = 2;  // Pin number for the PPS signal
-float ppsDelay = 0.0;  // Initial delay in seconds
+unsigned int ppsDelay = 0.0;  // Initial delay in seconds
 
 void setup() {
-  Serial.begin(9600);       // Set baud rate for serial communication
+  Serial.begin(115200);       // Set baud rate for serial communication
   pinMode(ppsPin, OUTPUT);  // Set pin mode for PPS signal
+  Serial.setTimeout(100);
 }
 
 void loop() {
   if (Serial.available() > 0) {
     String inputString = Serial.readStringUntil('\n');  // Read the serial input until a newline character is received
     ppsDelay = inputString.toFloat();                   // Convert the input string to a float value
-    // Serial.print(inputString);
     Serial.println(ppsDelay);
   }
   if (ppsDelay > 0) {
