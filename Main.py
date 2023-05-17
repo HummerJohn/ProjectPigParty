@@ -7,7 +7,12 @@ from server import ServerThread
 
 # server_thread = threading.Thread(target=run_server)
 server_thread = ServerThread()
+
+with server_thread.Position_lock:
+    server_thread.Position = 0
+    
 server_thread.start()
+
 
 import sqlite3
 import RPi.GPIO as GPIO

@@ -159,6 +159,12 @@
           transform: rotate(360deg);
         }
       }
+
+      .imagePos {
+        width: 200px;
+        height: 200px;
+        transform: rotate(0deg);
+      }
 /* 
       @keyframes rotateCounter {
         from {
@@ -216,8 +222,11 @@
           </div>
         </div>
 
+        <!-- <div class="image-container">
+          <img class="image" src="pig.png" alt="Rotating Image" id="RPM-PIG">
+        </div> -->
         <div class="image-container">
-          <img class="image" src="pig.png" alt="Rotating Image">
+          <img class="imagePos" src="pig.png" alt="Positioned Image" id="POS-PIG">
         </div>
       </div>
     </div>
@@ -264,12 +273,27 @@
             console.log("Error updating current RPM:", error);
           });
       }
-  
       // Call the function initially to update the current RPM
       updateCurrentRPM();
-  
       // Call the function every 2 seconds to keep updating the current RPM
       setInterval(updateCurrentRPM, 2000);
+
+      function updateCurrentPosition() {
+        fetch("/current_position")
+          .then(response => response.text())
+          .then(data => {
+            const image = document.querySelector(".imagePos");
+            const Position = parseFloat(data);
+            image.style.transform = `rotate(${Position}deg)`;
+          })
+          .catch(error => {
+            console.log("Error updating current Position:", error);
+          });
+      }
+            // Call the function initially to update the current RPM
+      updateCurrentPosition();
+      // Call the function every 2 seconds to keep updating the current RPM
+      setInterval(updateCurrentPosition, 25);
 
       var slider = document.getElementById("myRange");
       var output = document.getElementById("demo");
