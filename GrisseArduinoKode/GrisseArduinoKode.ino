@@ -9,14 +9,13 @@ const float DegreeConversion = 10000 / 360;
 
 unsigned int ppsDelay = 0.0;  // Initial delay in seconds
 unsigned int Direction = 0;
+unsigned int Zeroing = 1;
 volatile long FFPosPul = 0;
 volatile long FFPosPul_OLD = 0;
 volatile int FFPosDeg = 0;
 
 // volatile long pulse;
 // volatile bool pinB, pinA, dir;
-
-int yoloDir = 0;
 
 void setup() {
   Serial.begin(115200);       // Set baud rate for serial communication
@@ -36,34 +35,33 @@ void setup() {
 
 void loop() {
   if (Serial.available() > 0) {
-    //  Serial.println(encoderPosition);
     String inputString = Serial.readStringUntil('\n');  // Read the serial input until a newline character is received
-    // ppsDelay = inputString.toFloat();                   // Convert the input string to a float value
-    // Serial.println(inputString);
-    int commaIndex = inputString.indexOf(',');  // Find the index of the comma separator
-    // Serial.print("FeedForward: ");
-    // Serial.print(FFPosPul);
-    // Serial.print(" Encoder: ");
-    // Serial.println(pinA);
-    // Serial.println(pinB);
+    int commaIndex1 = inputString.indexOf(',');  // Find the index of the comma separator
+    int commaIndex2 = inputString.indexOf(',', commaIndex1 + 1);
 
-    if (commaIndex != -1) {
-      String ppsString = inputString.substring(0, commaIndex);   // Extract the float value string
-      String DirString = inputString.substring(commaIndex + 1);  // Extract the boolean value string
+    if (commaIndex1 != -1 && commaIndex2 != -1) {
+      String ppsString = inputString.substring(0, commaIndex1);   // Extract the float value string
+      String DirString = inputString.substring(commaIndex1 + 1, commaIndex2);
+      String ZeroString = inputString.substring(commaIndex2 + 1);
+      
       ppsDelay = ppsString.toFloat();                            // Convert the float value string to a float
       Direction = DirString.toInt();                             // Convert the boolean value string to a boolean (0 or 1)
-      yoloDir = 0;
+      Zeroing = ZeroString.toInt();
+
       if (Direction == 1) {
-        digitalWrite(DirPin, HIGH);
-      } else {
         digitalWrite(DirPin, LOW);
+      } else {
+        digitalWrite(DirPin, HIGH);
       }
       if (ppsDelay > 0) {
         digitalWrite(EnaPin, HIGH);
       } else {
-        // FFPosDeg = 0;
-        // FFPosPul = 0;
         digitalWrite(EnaPin, LOW);
+      }
+      if (Zeroing == 0) {
+        FFPosDeg = 0;
+        FFPosPul = 0;
+        
       }
     }
   }

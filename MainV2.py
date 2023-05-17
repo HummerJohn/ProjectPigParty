@@ -14,16 +14,16 @@ with server_thread.Position_lock:
 server_thread.start()
 
 import sqlite3
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 import serial
 import time
 import os
 
 # Setup GPIO Pins
-DirP = 3
-GPIO.setmode(GPIO.BOARD)
-GPIO.setwarnings(False)    
-GPIO.setup(DirP,GPIO.OUT)
+# DirP = 3
+# GPIO.setmode(GPIO.BOARD)
+# GPIO.setwarnings(False)    
+# GPIO.setup(DirP,GPIO.OUT)
 
 # Open connection to SQLite Database
 sqliteConnection = sqlite3.connect('my_database.db')
@@ -40,10 +40,6 @@ MicroSecondsPerPulse = int(((60/(0.1*10.0))/PulsePerRotation)*1000000)
 # Initialize Direction Pin.
 cursor.execute('SELECT Desired FROM Direction')
 Desired_Dir = cursor.fetchone()[0]
-if Desired_Dir == 1:
-    GPIO.output(DirP,GPIO.HIGH)
-else:
-    GPIO.output(DirP,GPIO.LOW)
 
 # Turn on power to USB - Turn on fans and Arduino
 os.system('uhubctl -l 1-1 -p 2 -a 1')
@@ -59,6 +55,12 @@ arduino.flush()
 RampRate = 0.2/1 # 0.1 per second
 # Run until keyboard interupt
 StartTime = time.time()
+ZeroingMsg =  "," + str(1)
+ToArduino = str(0) + "," + str(Desired_Dir)
+arduino.write((ToArduino+ZeroingMsg).encode())
+cursor.execute("UPDATE Direction SET Current = ? WHERE ID = ?", (Desired_Dir,1))
+sqliteConnection.commit()
+
 try:        
     while True:
         ElapsedTime = time.time() - StartTime
@@ -73,18 +75,25 @@ try:
             Current_Dir = cursor.fetchone()[0]    
             cursor.execute('SELECT Desired FROM Direction')
             Desired_Dir = cursor.fetchone()[0]
-
+            cursor.execute('SELECT Desired FROM Position')
+            Desired_Pos = cursor.fetchone()[0]
+            
+            if Desired_Pos == 0:
+                ZeroingMsg =  "," + str(0)
+                arduino.write((ToArduino+ZeroingMsg).encode())
+                arduino.write(b'\n')
+                ZeroingMsg =  "," + str(1)
+                cursor.execute("UPDATE Position SET Desired = ? WHERE ID = ?", (1,1))
+                sqliteConnection.commit() 
+            # else:
+            #     ZeroingMsg =  "," + str(1)
+                
             if Current_Dir == Desired_Dir:
                 # We don't want directional change so ramp to Desired RPM
                 tmp_Desired_RPM = Desired_RPM 
             else:
                 # We want directional change
                 if Current_RPM == 0:
-                    # If current RPM is 0 we can change direction
-                    if Desired_Dir == 1:    
-                        GPIO.output(DirP,GPIO.HIGH)
-                    else:
-                        GPIO.output(DirP,GPIO.LOW)
                     Current_Dir = Desired_Dir    
                     cursor.execute("UPDATE Direction SET Current = ? WHERE ID = ?", (Desired_Dir,1))
                     sqliteConnection.commit()
@@ -106,7 +115,7 @@ try:
 
                 if tmp_Desired_RPM < tmp_RampRate:
                     ToArduino = str(0) + "," + str(Current_Dir)
-                    arduino.write(ToArduino.encode())
+                    arduino.write((ToArduino+ZeroingMsg).encode())
                     arduino.write(b'\n')
                     # Write 0 to Current_RPM
                     cursor.execute("UPDATE RPM SET Current = ? WHERE ID = ?", (0,1))
@@ -116,30 +125,24 @@ try:
                     MicroSecondsPerPulse = int(((60/(tmp_Desired_RPM*10.0))/PulsePerRotation)*1000000)
                     print(str(MicroSecondsPerPulse) + " RPM: " + str(round(tmp_Desired_RPM,1)))
                     ToArduino = str(MicroSecondsPerPulse) + "," + str(Current_Dir)
-                    arduino.write(ToArduino.encode())
+                    # print(ToArduino+ZeroingMsg)
+                    arduino.write((ToArduino+ZeroingMsg).encode())
                     arduino.write(b'\n')
                     cursor.execute("UPDATE RPM SET Current = ? WHERE ID = ?", (round(tmp_Desired_RPM,1),1))
                     sqliteConnection.commit()
 
-        
-        
-        # print(arduino.readline().decode().strip())
         PositionInDegrees = arduino.readline().decode().strip()
         with server_thread.Position_lock:
             server_thread.Position = PositionInDegrees
-        # print(PositionInDegrees)
-        # cursor.execute("UPDATE Position SET Current = ? WHERE ID = ?", (PositionInDegrees,1))
-        # sqliteConnection.commit()
-        # time.sleep(max(0,1-ElapsedTime))
 
 except KeyboardInterrupt:
     ToArduino = str(0) + "," + str(Current_Dir)
-    arduino.write(ToArduino.encode())
+    arduino.write((ToArduino+ZeroingMsg).encode())
     arduino.write(b'\n')
     sqliteConnection.close()
     server_thread.stop()
     server_thread.join()
     os.system('uhubctl -l 1-1 -p 2 -a 0')
-    GPIO.cleanup()
+    # GPIO.cleanup()
 
 

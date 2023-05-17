@@ -199,7 +199,8 @@
       
         <div class="container">
           <div class="left">
-            <p>Desired RPM: <span id="demo"></span></p>
+            <!-- <p>Desired RPM: <span id="demo"></span></p> -->
+            <p>Desired RPM: <span id="desired-rpm">{0}</span></p>
           </div>
           <div class="right">
             <!-- <p>Current Rotations Per Minute: "{0}"</p>  -->
@@ -220,8 +221,10 @@
           <div class="left">
             <button id="DirButton" class="button" onclick="sendDir()">Change Direction</button> 
           </div>
+          <div class="right">
+            <button id="ZeroButton" class="button" onclick="sendZero()">Zero Position</button> 
+          </div>
         </div>
-
         <!-- <div class="image-container">
           <img class="image" src="pig.png" alt="Rotating Image" id="RPM-PIG">
         </div> -->
@@ -252,8 +255,11 @@
         var sliderValue = 0;
         fetch("/change_direction")
       }
-
-      function updateCurrentRPM() {
+      function sendZero() {
+        var sliderValue = 0;
+        fetch("/change_position")
+      }
+      /*function updateCurrentRPM() {
         fetch("/current_rpm")
           .then(response => response.text())
           .then(data => {
@@ -272,11 +278,39 @@
           .catch(error => {
             console.log("Error updating current RPM:", error);
           });
+      }*/
+
+      function updateCurrentRPM() {
+        fetch("/current_rpm")
+          .then(response => response.text())
+          .then(data => {
+            const currentRPM = document.getElementById("current-rpm");
+            currentRPM.innerText = data;
+          })
+          .catch(error => {
+            console.log("Error updating current RPM:", error);
+          }); 
       }
       // Call the function initially to update the current RPM
       updateCurrentRPM();
       // Call the function every 2 seconds to keep updating the current RPM
-      setInterval(updateCurrentRPM, 2000);
+      setInterval(updateCurrentRPM, 1000);
+
+      function updateDesiredRPM() {
+        fetch("/desired_rpm")
+          .then(response => response.text())
+          .then(data => {
+            const desiredRPM = document.getElementById("desired-rpm");
+            desiredRPM.innerText = data;
+          })
+          .catch(error => {
+            console.log("Error updating current RPM:", error);
+          }); 
+      }
+      // Call the function initially to update the current RPM
+      updateDesiredRPM();
+      // Call the function every 2 seconds to keep updating the current RPM
+      setInterval(updateDesiredRPM, 1000);
 
       function updateCurrentPosition() {
         fetch("/current_position")
@@ -290,7 +324,7 @@
             console.log("Error updating current Position:", error);
           });
       }
-            // Call the function initially to update the current RPM
+      // Call the function initially to update the current RPM
       updateCurrentPosition();
       // Call the function every 2 seconds to keep updating the current RPM
       setInterval(updateCurrentPosition, 25);
