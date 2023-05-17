@@ -92,6 +92,13 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
                 cursor.execute('SELECT Current FROM RPM')
                 Desired_RPM_OLD = cursor.fetchone()[0]
                 self.wfile.write(bytes(str(Desired_RPM_OLD), 'utf-8'))
+            elif self.path == '/desired_rpm':
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                cursor.execute('SELECT Desired FROM RPM')
+                Desired_RPM = cursor.fetchone()[0]
+                self.wfile.write(bytes(str(Desired_RPM), 'utf-8'))                
             elif self.path == '/current_position':
                 self.send_response(200)
                 self.send_header('Content-type', 'text/plain')
@@ -114,7 +121,16 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
                     cursor.execute("UPDATE Direction SET Desired = ? WHERE ID = ?", (1,1))
                 # Close the cursor and the connection
                 sqliteConnection.commit() 
-                self.wfile.write(bytes("Direction changed", 'utf-8'))   
+                self.wfile.write(bytes("Direction changed", 'utf-8'))
+            elif self.path == '/change_position':
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                cursor.execute("UPDATE Position SET Desired = ? WHERE ID = ?", (0,1))
+                # print("Desired Position Changed")
+                # Close the cursor and the connection
+                sqliteConnection.commit() 
+                self.wfile.write(bytes("Zeroed Position", 'utf-8'))
             elif self.path.endswith('.png'):
                 # Serve image files
                 self.send_response(200)
