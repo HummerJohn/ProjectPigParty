@@ -145,35 +145,11 @@
         margin-top: 30px;
       }
 
-      .image {
-        width: 200px;
-        height: 200px;
-        animation: rotate 2s linear infinite; /* Adjust the animation duration as needed */
-      }
-
-      @keyframes rotate {
-        from {
-          transform: rotate(0deg);
-        }
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
       .imagePos {
         width: 200px;
         height: 200px;
         transform: rotate(0deg);
       }
-/* 
-      @keyframes rotateCounter {
-        from {
-          transform: rotate(360deg);
-        }
-        to {
-          transform: rotate(0deg);
-        }
-      } */
 
     </style>
   </head>
@@ -225,9 +201,6 @@
             <button id="ZeroButton" class="button" onclick="sendZero()">Zero Position</button> 
           </div>
         </div>
-        <!-- <div class="image-container">
-          <img class="image" src="pig.png" alt="Rotating Image" id="RPM-PIG">
-        </div> -->
         <div class="image-container">
           <img class="imagePos" src="pig.png" alt="Positioned Image" id="POS-PIG">
         </div>
@@ -259,26 +232,6 @@
         var sliderValue = 0;
         fetch("/change_position")
       }
-      /*function updateCurrentRPM() {
-        fetch("/current_rpm")
-          .then(response => response.text())
-          .then(data => {
-            const currentRPM = document.getElementById("current-rpm");
-            currentRPM.innerText = data;
-            
-            // Update the rotation speed of the image
-            const image = document.querySelector(".image");
-            const rotationSpeed = 120/parseFloat(data); // Adjust the multiplier as needed
-            if (parseFloat(data) === 0) {
-              image.style.animation = "none"; // Stop the animation
-            } else {
-              image.style.animation = `rotate ${rotationSpeed}s linear infinite`; // Start the animation
-            }
-          })
-          .catch(error => {
-            console.log("Error updating current RPM:", error);
-          });
-      }*/
 
       function updateCurrentRPM() {
         fetch("/current_rpm")

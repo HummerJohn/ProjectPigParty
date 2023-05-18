@@ -14,23 +14,16 @@ volatile long FFPosPul = 0;
 volatile long FFPosPul_OLD = 0;
 volatile int FFPosDeg = 0;
 
-// volatile long pulse;
-// volatile bool pinB, pinA, dir;
-
 void setup() {
   Serial.begin(115200);       // Set baud rate for serial communication
   pinMode(ppsPin, OUTPUT);  // Set pin mode for PPS signal
   pinMode(DirPin, OUTPUT);
   pinMode(EnaPin, OUTPUT);
-  Serial.flush();
   Serial.setTimeout(100);
   digitalWrite(EnaPin, LOW);
   digitalWrite(DirPin, LOW);
   // pinMode(encoderPinA, INPUT_PULLUP);
   // pinMode(encoderPinB, INPUT_PULLUP);
-
-  // encoder pin on interrupt 0 (pin 2)
-  // attachInterrupt(1, readEncoder, CHANGE);
 }
 
 void loop() {
@@ -48,45 +41,25 @@ void loop() {
       Direction = DirString.toInt();                             // Convert the boolean value string to a boolean (0 or 1)
       Zeroing = ZeroString.toInt();
 
-      if (Direction == 1) {
-        digitalWrite(DirPin, LOW);
-      } else {
-        digitalWrite(DirPin, HIGH);
-      }
-      if (ppsDelay > 0) {
-        digitalWrite(EnaPin, HIGH);
-      } else {
-        digitalWrite(EnaPin, LOW);
-      }
+      digitalWrite(DirPin, Direction == 1 ? LOW : HIGH);
+      digitalWrite(EnaPin, ppsDelay > 0 ? HIGH : LOW);
+      
       if (Zeroing == 0) {
         FFPosDeg = 0;
         FFPosPul = 0;
-        
       }
     }
   }
-  if (ppsDelay > 0) {
-    // Calculate the delay in milliseconds for generating the PPS signal
-    // unsigned long ppsDelayMs = ppsDelay * 1000;
 
-    // Generate the PPS signal
+  if (ppsDelay > 0) {
     digitalWrite(ppsPin, HIGH);
-    delayMicroseconds(ppsDelay);  // Adjust as needed
+    delayMicroseconds(ppsDelay);
     digitalWrite(ppsPin, LOW);
     delayMicroseconds(ppsDelay);
-    if (Direction == 1) {
-      FFPosPul++;
-    } else {
-      FFPosPul--;
-    }
+    FFPosPul += (Direction == 1) ? 1 : -1;
     if (((abs(FFPosPul) % round(DegreeConversion + (DegreeConversion * abs(FFPosDeg))) == 0) && (abs(FFPosPul) > abs(FFPosPul_OLD))) || 
         ((abs(FFPosPul) % round((DegreeConversion * abs(FFPosDeg)) - DegreeConversion) == 0) && (abs(FFPosPul) < abs(FFPosPul_OLD)))) {
-      if (Direction == 1) {
-        FFPosDeg++;
-      } else {
-        FFPosDeg--;
-      }
-      // if (FFPosDeg == 359) { Serial.println(FFPosPul);}
+      FFPosDeg += (Direction == 1) ? 1 : -1;
 
       if (FFPosDeg == 360) {
         FFPosDeg = 0;
@@ -100,18 +73,3 @@ void loop() {
     }
   }
 }
-
-// void readEncoder() {
-//   pinA = bitRead(PIND,encoderPinA);
-//   pinB = bitRead(PIND,encoderPinB);
-//   // dir = pinA ^ pinB;          // if pinA & pinB are the same
-//   // dir ? --pulse : ++pulse;    // dir is CW, else CCW
-//   if (Direction == 1) {
-//     pulse++;
-//   } else {
-//     pulse--;
-//   }  // if ((dir == Direction) and (yoloDir == 0)) {
-//   //   Serial.println("directionfuck");
-//   //   yoloDir = 1;
-//   // }
-// }
