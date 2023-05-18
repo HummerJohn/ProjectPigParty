@@ -1,140 +1,60 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" href="HTTPServer/styles.css">
-</head>
-<body>
-  <h1>Spin The Pig Party</h1>
-  <div class="container">
-    <div class="slide-container">
-      <p>Rotational Speed of Piggy [RPM]:</p>
-      <input type="range" min="0" max="10" value="0" step="0.1" class="slider" id="myRange" list="tickmarks">
-      <div class="slider-ticks">
-        <p>0</p>
-        <p>1</p>
-        <p>2</p>
-        <p>3</p>
-        <p>4</p>
-        <p>5</p>
-        <p>6</p>
-        <p>7</p>
-        <p>8</p>
-        <p>9</p>
-        <p>10</p>
-      </div>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="HTTPServer/styles.css">
+  </head>
+  <body>
+    <h1>Spin The Pig Party</h1>
+    <div class="container">
+      <div class="slide-container">
+        <p>Rotational Speed of Piggy [RPM]:</p>
+        <input type="range" min="0" max="10" value="{0}" step="0.1" class="slider" id="RotationalSpeeds" list="tickmarks" >
+        <div class="slider-ticks">
+          <p>0</p>
+          <p>1</p>
+          <p>2</p>
+          <p>3</p>
+          <p>4</p>
+          <p>5</p>
+          <p>6</p>
+          <p>7</p>
+          <p>8</p>
+          <p>9</p>
+          <p>10</p>
+        </div>
+      
+        <div class="container">
+          <div class="left">
+            <p>Desired RPM: <span id="desired-rpm">{0}</span></p>
+          </div>
+          <div class="right">
+            <p>Current Rotations Per Minute: <span id="current-rpm">{0}</span></p>
+          </div>
+        </div>
+        
+        <div class="container">
+          <div class="left">
+            <button id="sendButton" class="button" onclick="sendData()">Send Desired RPM</button> 
+          </div>
+          <div class="right">
+            <button id="stopButton" class="stop-button" onclick="sendStop()">STOP</button>
+          </div>
+        </div>
 
-      <div class="container">
-        <div class="left">
-          <p>Desired RPM: <span id="desired-rpm">0</span></p>
+        <div class="container">
+          <div class="left">
+            <button id="DirButton" class="button" onclick="sendDir()">Change Direction</button> 
+          </div>
+          <div class="right">
+            <button id="ZeroButton" class="button" onclick="sendZero()">Zero Position</button> 
+          </div>
         </div>
-        <div class="right">
-          <p>Current Rotations Per Minute: <span id="current-rpm">0</span></p>
+        <div class="image-container">
+          <img class="imagePos" src="HTTPServer/pig.png" alt="Positioned Image" id="POS-PIG">
         </div>
-      </div>
-
-      <div class="container">
-        <div class="left">
-          <button id="sendButton" class="button">Send Desired RPM</button>
-        </div>
-        <div class="right">
-          <button id="stopButton" class="stop-button">STOP</button>
-        </div>
-      </div>
-
-      <div class="container">
-        <div class="left">
-          <button id="dirButton" class="button">Change Direction</button>
-        </div>
-        <div class="right">
-          <button id="zeroButton" class="button">Zero Position</button>
-        </div>
-      </div>
-
-      <div class="image-container">
-        <img class="image-pos" src="HTTPServer/pig.png" alt="Positioned Image" id="pos-pig">
       </div>
     </div>
-  </div>
-
-  <!-- <script src="HTTPServer/script.js"></script> -->
-  <script>
-    function sendData() {
-      const sliderValue = document.getElementById("myRange").value;
-      fetch("/slider", {
-        method: "POST",
-        body: sliderValue.toString()
-      });
-    }
-
-    function sendStop() {
-      fetch("/slider", {
-        method: "POST",
-        body: "0"
-      });
-    }
-
-    function sendDir() {
-      fetch("/change_direction");
-    }
-
-    function sendZero() {
-      fetch("/change_position");
-    }
-
-    function updateRPM(elementId, url) {
-      fetch(url)
-        .then(response => response.text())
-        .then(data => {
-          const element = document.getElementById(elementId);
-          element.textContent = data;
-        })
-        .catch(error => {
-          console.log(`Error updating ${elementId}:`, error);
-        });
-    }
-
-    function updateCurrentRPM() {
-      updateRPM("current-rpm", "/current_rpm");
-    }
-
-    function updateDesiredRPM() {
-      updateRPM("desired-rpm", "/desired_rpm");
-    }
-
-    function updateCurrentPosition() {
-      fetch("/current_position")
-        .then(response => response.text())
-        .then(data => {
-          const image = document.querySelector(".image-pos");
-          const position = parseFloat(data);
-          image.style.transform = `rotate(${position}deg)`;
-        })
-        .catch(error => {
-          console.log("Error updating current position:", error);
-        });
-    }
-
-    function setupSlider() {
-      const slider = document.getElementById("myRange");
-      const output = document.getElementById("demo");
-      output.innerHTML = slider.value;
-
-      slider.oninput = function() {
-        output.innerHTML = this.value;
-      };
-    }
-
-    // Call the functions initially to update the current values
-    updateCurrentRPM();
-    updateDesiredRPM();
-    updateCurrentPosition();
-    setupSlider();
-
-    // Call the functions every 2 seconds to keep updating the values
-    setInterval(updateCurrentRPM, 1000);
-    setInterval(updateDesiredRPM, 1000);
-    setInterval(updateCurrentPosition, 25);
-  </script>
-</body>
+    <script src="HTTPServer/script.js"></script>
+  </body>
 </html>

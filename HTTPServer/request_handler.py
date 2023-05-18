@@ -47,7 +47,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
                 cursor.execute('SELECT Current FROM RPM')
                 Desired_RPM_OLD = cursor.fetchone()[0]
-                with open('HTTPServer/Slider.html', 'r') as file:
+                with open('HTTPServer/PigParty.html', 'r') as file:
                     content = file.read()
                     content = content.replace('"{0}"', f'"{Desired_RPM_OLD}"')
                     self.wfile.write(bytes(content, 'utf-8'))

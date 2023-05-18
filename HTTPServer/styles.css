@@ -1,4 +1,4 @@
-body {
+  body {
     background-color: #e4c58f;
   }
   
@@ -21,10 +21,6 @@ body {
   
   h1 {
     text-align: center;
-  }
-  
-  .sub-container {
-    display: flex;
   }
   
   .left {
@@ -124,7 +120,7 @@ body {
     margin-top: 30px;
   }
   
-  .image-pos {
+  .imagePos {
     width: 200px;
     height: 200px;
     transform: rotate(0deg);
