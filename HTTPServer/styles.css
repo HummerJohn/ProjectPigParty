@@ -1,0 +1,132 @@
+body {
+    background-color: #e4c58f;
+  }
+  
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  .slide-container {
+    justify-content: center;
+    margin: 0 auto;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  h1 {
+    text-align: center;
+  }
+  
+  .sub-container {
+    display: flex;
+  }
+  
+  .left {
+    text-align: left;
+    width: 40%;
+  }
+  
+  .right {
+    text-align: right;
+    width: 40%;
+  }
+  
+  .button,
+  .stop-button {
+    background-color: #e4c58f;
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+    border-radius: 15px;
+    flex-grow: 1;
+    height: 60px;
+    transition: background-color 0.3s;
+    box-shadow: 0 9px #999;
+    margin-top: 10px;
+  }
+  
+  .stop-button {
+    background-color: #ff0000;
+    color: #e4c58f;
+  }
+  
+  .button:hover,
+  .stop-button:hover {
+    background-color: #ffdc9f;
+  }
+  
+  .button:active,
+  .stop-button:active {
+    background-color: #cc0000;
+    box-shadow: 0 5px #999;
+    transform: translateY(4px);
+  }
+  
+  .slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 25px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #2f00ff;
+    cursor: pointer;
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #2f00ff;
+    cursor: pointer;
+  }
+  
+  .slider-ticks {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 15px;
+  }
+  
+  .slider-ticks p {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    width: 1px;
+    background: #d3d3d3;
+    height: 10px;
+    line-height: 40px;
+    margin: 0 0 20px 0;
+  }
+  
+  .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 30px;
+  }
+  
+  .image-pos {
+    width: 200px;
+    height: 200px;
+    transform: rotate(0deg);
+  }
+  

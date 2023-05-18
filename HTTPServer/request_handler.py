@@ -47,7 +47,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
                 cursor.execute('SELECT Current FROM RPM')
                 Desired_RPM_OLD = cursor.fetchone()[0]
-                with open('Slider.html', 'r') as file:
+                with open('HTTPServer/Slider.html', 'r') as file:
                     content = file.read()
                     content = content.replace('"{0}"', f'"{Desired_RPM_OLD}"')
                     self.wfile.write(bytes(content, 'utf-8'))
@@ -99,7 +99,19 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
                 self.send_header('Content-type', 'image/png')
                 self.end_headers()
                 with open(self.path[1:], 'rb') as file:
-                    self.wfile.write(file.read())            
+                    self.wfile.write(file.read())   
+            elif self.path.endswith('.css'):
+                self.send_response(200)
+                self.send_header('Content-type', 'text/css')
+                self.end_headers()
+                with open(self.path[1:], 'r') as file:
+                    self.wfile.write(bytes(file.read(), 'utf-8'))
+            elif self.path.endswith('.js'):
+                self.send_response(200)
+                self.send_header('Content-type', 'application/javascript')
+                self.end_headers()
+                with open(self.path[1:], 'r') as file:
+                    self.wfile.write(bytes(file.read(), 'utf-8'))
             else:
                 self.send_error(404)
                 self.end_headers()
