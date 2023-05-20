@@ -51,24 +51,25 @@ arduino.write((msg_delay+msg_direction+msg_reset_position).encode())
 arduino.write(b'\n')
 
 start_time = time.time()
+
+def read_from_my_db(table_name):
+    cursor.execute('SELECT Current FROM' + table_name)
+    current = cursor.fetchone()[0]
+    cursor.execute('SELECT Desired FROM' + table_name)
+    desired = cursor.fetchone()[0]
+    return (current, desired)
+
 # Run until keyboard interupt
 try:        
     while True:
         elapsed_time = time.time() - start_time
         if elapsed_time > SAMPLING_TIME:
             start_time = time.time()
-
+            
             # Read Needed information from DB
-            cursor.execute('SELECT Current FROM RPM')
-            current_rpm = cursor.fetchone()[0]
-            cursor.execute('SELECT Desired FROM RPM')
-            desired_rpm = cursor.fetchone()[0]
-            cursor.execute('SELECT Current FROM Direction')
-            current_dir = cursor.fetchone()[0]    
-            cursor.execute('SELECT Desired FROM Direction')
-            desired_dir = cursor.fetchone()[0]
-            cursor.execute('SELECT Desired FROM Position')
-            desired_pos = cursor.fetchone()[0]
+            current_rpm, desired_rpm = read_from_my_db(' RPM')
+            current_dir, desired_dir = read_from_my_db(' Direction')
+            current_pos, desired_pos = read_from_my_db(' Position')
             
             if desired_pos == 0:
                 # Reset Position button was pressed.
