@@ -11,3 +11,7 @@ PigParty.html calls styles and script for looks and functionality respectively
 
 ## SQLITE database
 my_database is used to handle speed and directional changes.
+
+## To do list
+1. Remove ramping.
+2. make stop function correctly
